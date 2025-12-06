@@ -5,6 +5,9 @@ import "dotenv/config";
 import { Agent, run, tool } from "@openai/agents";
 import { z } from "zod";
 import axios from "axios";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 const getWeatherTool = tool({
   name: "get_weather",
@@ -29,16 +32,29 @@ const sendEmailTool = tool({
         body:z.string().describe("body of the email")
     }),
     execute: async function ({body,subject,toEmail}){
-        // here setup nodemailer and send email
+        // here setup resend and send email
+        try {
+            await resend.emails.send({
+                from: "Weather Bot <onboarding@resend.dev>",
+                to:toEmail,
+                subject,
+                text:body
+
+            })
+
+            return `Email sent successfully to ${toEmail}`
+        } catch (error) {
+            return `Email sending failed: ${error.message}`
+        }
     }
 })
 
 const agent = new Agent({
   name: "Weather agent",
   instructions: `
-    You are an expert weather agent that helps user to tell weather report.
+    You are an expert weather agent that helps user to tell weather report and email this weather data.
     `,
-  tools: [getWeatherTool],
+  tools: [getWeatherTool,sendEmailTool],
 });
 
 async function main(query) {
@@ -46,4 +62,4 @@ async function main(query) {
   console.log("Result", result.finalOutput);
 }
 
-main("what is the weather of dhaka.");
+main("what is the weather of dhaka at asifahmedsahil.007@gmail.com");
