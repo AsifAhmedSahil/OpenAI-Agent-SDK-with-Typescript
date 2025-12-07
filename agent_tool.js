@@ -71,4 +71,4 @@ async function main(query) {
   console.log("Result", result.finalOutput);
 }
 
-main("what is the weather of dhaka at asifahmedsahil.007@gmail.com");
+main("what is the weather of chittagong at asifahmedsahil.007@gmail.com");
