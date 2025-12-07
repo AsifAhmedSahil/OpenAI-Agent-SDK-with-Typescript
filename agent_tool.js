@@ -9,18 +9,26 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+const GetWeatherResultSchema = z.object({
+  city: z.string().describe("name of the city"),
+  degree_c:z.number().describe("the degree celcius"),
+  condition: z.string().describe("condition of the weather of city")
+})
+
 const getWeatherTool = tool({
   name: "get_weather",
   description: "return the current weather information for the given city.",
   parameters: z.object({
     city: z.string().describe("name of the city"),
   }),
+  
   execute: async function ({ city }) {
     const url = `https://wttr.in/${city.toLowerCase()}?format=%C+%t`;
     const response = await axios.get(url, { responseType: "text" });
 
     return `the weather of ${city} is ${response.data}`;
   },
+  
 });
 
 const sendEmailTool = tool({
@@ -55,6 +63,7 @@ const agent = new Agent({
     You are an expert weather agent that helps user to tell weather report and email this weather data.
     `,
   tools: [getWeatherTool,sendEmailTool],
+  outputType:GetWeatherResultSchema
 });
 
 async function main(query) {
