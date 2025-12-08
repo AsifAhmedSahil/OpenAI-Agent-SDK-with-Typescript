@@ -48,4 +48,4 @@ async function main(q="") {
     
 }
 
-main('what is the const keyword')
+main('4x+4=500, find the value of x?')
