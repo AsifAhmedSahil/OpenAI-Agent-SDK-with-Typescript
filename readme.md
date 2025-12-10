@@ -96,8 +96,39 @@ async function main(q="") {
 }
 ```
 
-that means all history track on the sharedHistory array 
+that means all history track on the sharedHistory array
 
 ## server managed thread
 
+You can let the OpenAI Responses API persist conversation history for you instead of sending your entire local transcript on every turn.
 
+means, akta conversational id create kore oita dia agent k run korale then conversation server e save thakbe
+
+### create conversation ID
+
+```
+import "dotenv/config";
+
+import {OpenAI} from "openai"
+
+const client = new OpenAI()
+
+client.conversations.create({}).then(e =>{
+    console.log(`conversation thread created id=`,e.id)
+})
+```
+
+### add conversation id to the agent
+
+```
+async function main(q="") {
+
+    const result = await run(sqlAgent,q,{
+        conversationId:"conv_693919d65cb4819790529c7a9fe307b90bd2f306bf8b681b"
+    });
+
+    console.log(result.finalOutput);
+
+
+}
+```
