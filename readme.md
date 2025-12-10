@@ -98,4 +98,6 @@ async function main(q="") {
 
 that means all history track on the sharedHistory array 
 
+## server managed thread
+
 
