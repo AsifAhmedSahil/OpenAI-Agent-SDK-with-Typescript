@@ -241,4 +241,57 @@ async function main(query: any) {
 
 aita korle line e serially stream hobe
 
+## Human in Loop Pattern
+
+demonstrates how to use the built-in human-in-the-loop support in the SDK to pause and resume agent runs based on human intervention.
+
+aita means validation from human, ask human for calling any tool or ask is any task implement or not 
+# Example:
+copilot ask run anything or install anything or not
+
+validation lagate hbe j ei tool call krle aita sensitive tool amk  janaba ask krba
+
+any tool banale needsApproval:false hoi by default
+
+aita k needsApproval:true kore dile hoi kaj 
+
+```
+const sensitiveTool = tool({
+  name: 'cancelOrder',
+  description: 'Cancel order',
+  parameters: z.object({
+    orderId: z.number(),
+  }),
+  // always requires approval
+  needsApproval: true,
+  execute: async ({ orderId }, args) => {
+    // prepare order return
+  },
+});
+```
+
+thats means you have to take my approval for calling this tool
+
+# Flow
+1/ If the agent decides to call a tool (or many) it will check if this tool needs approval by evaluating needsApproval.
+
+2/ If the approval is required, the agent will check if approval is already granted or rejected.
+
+    -> If approval has not been granted or rejected, the tool will return a static message to the agent that the tool call cannot be executed.
+
+    -> If approval / rejection is missing it will trigger a tool approval request.
+    
+3/ The agent will gather all tool approval requests and interrupt the execution.
+
+4/ If there are any interruptions, the result will contain an interruptions array describing pending steps. A ToolApprovalItem with type: "tool_approval_item" appears when a tool call requires confirmation.
+
+5/ You can call result.state.approve(interruption) or result.state.reject(interruption) to approve or reject the tool call.
+
+6/ After handling all interruptions, you can resume execution by passing the result.state back into runner.run(agent, state) where agent is the original agent that triggered the overall run.
+
+7/ The flow starts again from step 1.
+
+
+
+
 
