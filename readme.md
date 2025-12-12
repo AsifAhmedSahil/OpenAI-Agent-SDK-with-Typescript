@@ -132,3 +132,87 @@ async function main(q="") {
 
 }
 ```
+## Runtime Local-Context Management
+
+in LLm context are avaiable data in chat == context
+
+but runtime context == local context
+
+problem :
+there are one customer support agent , 3 user call it same time, but it has one tool, how he can find when tool call for which user.
+
+ans ==> jokhon run hobe agent then run() call hobe , oikhane data hisebe dependency injection jabe user er information , which is context , jeta runtime e dite hbe, then agent bujte parbe kon user er jonno tool call hobe.
+
+aitae mainly context management
+
+### here user typescript because it gives us flexibility
+
+this is the runtime context access directly from  agent body 
+```
+interface MyContext{
+    userId:string,
+    userName:string
+}
+
+const customerSupportAgent = new Agent<MyContext>({
+    name:"Customer Support Agent",
+    instructions:({context})=>{
+        return `you are an customer support agent.\nContext:${JSON.stringify(context)}`
+    }
+
+})
+
+async function main(query:string,ctx:MyContext) {
+    const result = await run(customerSupportAgent,query,{
+        context:ctx 
+    })
+    console.log("/result:",result.finalOutput)
+    
+}
+
+main("hi,what is my name?",{
+    userId:"1",
+    userName:"Asif"
+})
+```
+
+# this is the tool call runtime context access 
+here agent call tool and provide context => aita holo agent context , ager ta runtime local context.
+```
+interface MyContext{
+    userId:string,
+    userName:string
+}
+
+const getUserInfoTool = tool({
+    name:"get_user_data",
+    description:"Gets the user info",
+    parameters:z.object({}),
+    execute: async(_,ctx?: RunContext<MyContext>):Promise<string> =>{
+        return `UserId=${ctx?.context.userId}\n UserName=${ctx?.context.userName}`
+    }
+})
+
+const customerSupportAgent = new Agent<MyContext>({
+    name:"Customer Support Agent",
+    tools:[getUserInfoTool],
+    instructions:({context})=>{
+        return `you are an customer support agent.`
+    }
+
+})
+
+async function main(query:string,ctx:MyContext) {
+    const result = await run(customerSupportAgent,query,{
+        context:ctx 
+    })
+    console.log("/result:",result.finalOutput)
+    
+}
+
+main("hi,what is my name?",{
+    userId:"1",
+    userName:"Asif"
+})
+```
+
