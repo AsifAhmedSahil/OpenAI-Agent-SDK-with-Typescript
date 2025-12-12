@@ -215,4 +215,30 @@ main("hi,what is my name?",{
     userName:"Asif"
 })
 ```
+## Streaming LLM Responses
+
+for enable the stream call {stream:true} in the run function
+
+// Normal stream 
+```
+async function main(query: any) {
+  const result = await run(agent, query, { stream: true });
+  const stream = result.toTextStream();
+
+  for await (const val of stream) {
+    console.log(val);
+  }
+}
+```
+
+<!-- node js stream like  -->
+```
+async function main(query: any) {
+  const result = await run(agent, query, { stream: true });
+   const stream = result.toTextStream({compatibleWithNodeStreams:true}).pipe(process.stdout)
+}
+```
+
+aita korle line e serially stream hobe
+
 
